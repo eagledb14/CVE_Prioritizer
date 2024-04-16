@@ -287,7 +287,7 @@ def shodan_check(cve_id):
 
     kev = data['kev']
 
-    action = data['propose_action']
+    action = data['summary']
 
     return (cvss, epss, kev, version, action)
 
@@ -297,7 +297,7 @@ def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, s
     Main Function
     """
 
-    (cve_result, epss_result, kev, version, action) = shodan_check(cve_id)
+    (cve_result, epss_result, kev, version, summary) = shodan_check(cve_id)
 
     working_file = None
     if save_output:
@@ -306,21 +306,21 @@ def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, s
     try:
         if (kev == True):
             print_and_write(working_file, cve_id, 'Priority 1+', epss_result, cve_result,
-                            version, 'TRUE', verbose_print, action, colored_output)
+                            version, 'TRUE', verbose_print, summary, colored_output)
         elif cve_result >= cvss_score:
             if epss_result >= epss_score:
                 print_and_write(working_file, cve_id, 'Priority 1', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, action, colored_output)
+                            version, 'FALSE', verbose_print, summary, colored_output)
             else:
                 print_and_write(working_file, cve_id, 'Priority 2', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, action, colored_output)
+                            version, 'FALSE', verbose_print, summary, colored_output)
         else:
             if epss_result >= epss_score:
                 print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, action, colored_output)
+                            version, 'FALSE', verbose_print, summary, colored_output)
             else:
                 print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, action, colored_output)
+                            version, 'FALSE', verbose_print, summary, colored_output)
     except (TypeError, AttributeError):
         pass
 
