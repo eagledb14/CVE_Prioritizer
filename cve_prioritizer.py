@@ -29,7 +29,6 @@ Throttle_msg = ''
 @click.command()
 @click.option('-a', '--api', type=str, help='Your API Key')
 @click.option('-c', '--cve', type=str, help='Unique CVE-ID')
-@click.option('-d', '--demo', is_flag=True, help='Top 10 CVEs of the last 7days from cvetrends.com')
 @click.option('-e', '--epss', type=float, default=0.2, help='EPSS threshold (Default 0.2)')
 @click.option('-f', '--file', type=click.File('r'), help='TXT file with CVEs (One per Line)')
 @click.option('-n', '--cvss', type=float, default=6.0, help='CVSS threshold (Default 6.0)')
@@ -40,7 +39,7 @@ Throttle_msg = ''
 @click.option('-nc', '--no-color', is_flag=True, help='Disable Colored Output')
 @click.option('-sa', '--set-api', is_flag=True, help='Save API keys')
 @click.option('-vc', '--vulncheck', is_flag=True, help='Use NVD++ - Requires VulnCheck API')
-def main(api, cve, demo, epss, file, cvss, output, threads, verbose, list, no_color, set_api, vulncheck):
+def main(api, cve, epss, file, cvss, output, threads, verbose, list, no_color, set_api, vulncheck):
     # Global Arguments
     color_enabled = not no_color
     throttle_msg = ''
@@ -103,31 +102,17 @@ def main(api, cve, demo, epss, file, cvss, output, threads, verbose, list, no_co
                            + header)
             else:
                 click.echo(LOGO + header)
-    elif demo:
-        click.echo('Unfortunately, due to Twitter’s recent API change, the CVETrends is currently unable to run.')
-        # try:
-        #     trends = cve_trends()
-        #     if trends:
-        #         cve_list = trends
-        #         if not os.getenv('NIST_API'):
-        #             click.echo(
-        #                 LOGO + 'Warning: Using this tool without specifying a NIST API may result in errors'
-        #                 + '\n\n' + header)
-        #         else:
-        #             click.echo(LOGO + header)
-        # except json.JSONDecodeError:
-        #     click.echo(f"Unable to connect to CVE Trends")
 
     if output:
         output.write("cve_id,priority,epss,cvss,cvss_version,cvss_severity,cisa_kev,cpe,vendor,product,vector" + "\n")
 
     for cve in cve_list:
         throttle = 1
-        if len(cve_list) > 75 and not os.getenv('NIST_API') and not api and not vulncheck:
-            throttle = 6
-        if vulncheck and (os.getenv('VULNCHECK_API') or api):
-            throttle = 0.25
-        elif vulncheck and not os.getenv('VULNCHECK_API') and not api:
+        # if len(cve_list) > 75 and not os.getenv('NIST_API') and not api and not vulncheck:
+        #     throttle = 6
+        # if vulncheck and (os.getenv('VULNCHECK_API') or api):
+        #     throttle = 0.25
+        if vulncheck and not os.getenv('VULNCHECK_API') and not api:
             click.echo("VulnCheck requires an API key")
             exit()
         if not re.match(r'(CVE|cve-\d{4}-\d+$)', cve):
