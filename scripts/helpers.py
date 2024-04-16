@@ -254,7 +254,6 @@ def truncate_string(input_string, max_length):
 def print_and_write(working_file, cve_id, priority, epss, cvss_base_score, cvss_version, cisa_kev,
                     verbose, action, no_color):
     color_priority = colored_print(priority)
-    # vendor, product = parse_cpe(cpe)
 
     if verbose:
         if no_color:
@@ -305,7 +304,7 @@ def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, s
         working_file = save_output
 
     try:
-        if (kev != None):
+        if (kev == True):
             print_and_write(working_file, cve_id, 'Priority 1+', epss_result, cve_result,
                             version, 'TRUE', verbose_print, action, colored_output)
         elif cve_result >= cvss_score:

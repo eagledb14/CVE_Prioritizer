@@ -123,7 +123,7 @@ def main(api, cve, epss, file, cvss, output, threads, verbose, list, no_color, s
                                                       sem, color_enabled, output, api, vulncheck))
             threads.append(t)
             t.start()
-            time.sleep(throttle)
+            # time.sleep(throttle)
 
     for t in threads:
         t.join()
