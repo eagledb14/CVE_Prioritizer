@@ -72,12 +72,12 @@ This approach categorizes vulnerabilities into five priority levels, allowing yo
 
 | **Priority** | **Description**                  |
 |--------------|----------------------------------|
-| Priority 1+  | CVEs found in CISA's KEV         |
+| Priority 0   | CVEs found in CISA's KEV         |
 | Priority 1   | CVEs in the Upper Right Quadrant |
 | Priority 2   | CVEs in the Lower Right Quadrant |
 | Priority 3   | CVEs in the Upper Left Quadrant  |
 | Priority 4   | CVEs in the Lower Left Quadrant  |
-
+| Priority 5   | Information is unknown           |
 
 Below is a modified version of FIRST's recommendation after applying our own approach.
 
