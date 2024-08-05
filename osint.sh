@@ -11,7 +11,7 @@
 #
 ######
 
-host="ncworks.gov"
+host="google.com"
 touch ips.txt
 
 shodan search --fields ip_str --limit 100 $host >> ips.txt || true
