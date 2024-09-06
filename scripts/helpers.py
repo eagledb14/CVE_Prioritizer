@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 # This file contains the functions that create the reports
 
-import os
 import requests
 
 import click
 from dotenv import load_dotenv
 from termcolor import colored
-
-from scripts.constants import EPSS_URL
-from scripts.constants import NIST_BASE_URL
-from scripts.constants import VULNCHECK_BASE_URL
 
 __author__ = "Mario Rojas"
 __license__ = "BSD 3-clause"
@@ -24,7 +19,7 @@ def colored_print(priority):
     """
     Function used to handle colored print
     """
-    if priority == 'Priority 1+':
+    if priority == 'Priority 0':
         return colored(priority, 'red')
     elif priority == 'Priority 1':
         return colored(priority, 'red')
@@ -49,16 +44,16 @@ def truncate_string(input_string, max_length):
 
 # Function manages the outputs
 def print_and_write(working_file, cve_id, priority, epss, cvss_base_score, cvss_version, cisa_kev,
-                    verbose, action, no_color):
+                    verbose, vendor, product, severity, no_color):
     color_priority = colored_print(priority)
 
     if verbose:
         if no_color:
             click.echo(f"{cve_id:<18}{color_priority:<22}{epss:<9}{cvss_base_score:<6}"
-                f"{cvss_version:<10}{cisa_kev:<10}{truncate_string(action, 50):<53}")
+                f"{cvss_version:<10}{severity:<10}{cisa_kev:<10}{vendor:<20}{product:<20}")
         else:
             click.echo(f"{cve_id:<18}{priority:<22}{epss:<9}{cvss_base_score:<6}"
-                f"{cvss_version:<10}{cisa_kev:<10}{truncate_string(action, 50):<53}")
+                f"{cvss_version:<10}{severity:<10}{cisa_kev:<10}{vendor:<20}{product:<20}")
     else:
         if no_color:
             click.echo(f"{cve_id:<18}{color_priority:<22}")
@@ -66,7 +61,7 @@ def print_and_write(working_file, cve_id, priority, epss, cvss_base_score, cvss_
             click.echo(f"{cve_id:<18}{priority:<13}")
     if working_file:
         working_file.write(f"{cve_id},{priority},{epss},{cvss_base_score},"
-                    f"{cvss_version},{cisa_kev},{action}\n")
+                    f"{cvss_version},{severity},{cisa_kev},{vendor},{product}\n")
 
 def shodan_check(cve_id):
     response = requests.get(f"https://cvedb.shodan.io/cve/{cve_id}")
@@ -84,17 +79,20 @@ def shodan_check(cve_id):
 
     kev = data['kev']
 
-    action = data['summary']
+    cpe = data['cpes'][0].split(":")
+    product = cpe[3]
+    vendor = cpe[4]
+    
 
-    return (cvss, epss, kev, version, action)
+    return (cvss, epss, kev, version, vendor, product)
 
 # Main function
-def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, save_output=None, api=None, nvd_plus=None):
+def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, save_output=None):
     """
     Main Function
     """
 
-    (cve_result, epss_result, kev, version, summary) = shodan_check(cve_id)
+    (cve_result, epss_result, kev, version, vendor, product) = shodan_check(cve_id)
 
     working_file = None
     if save_output:
@@ -102,22 +100,22 @@ def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, s
 
     try:
         if (kev == True):
-            print_and_write(working_file, cve_id, 'Priority 1+', epss_result, cve_result,
-                            version, 'TRUE', verbose_print, summary, colored_output)
+            print_and_write(working_file, cve_id, 'Priority 0', epss_result, cve_result,
+                            version, 'TRUE', verbose_print, vendor, product, "HIGH", colored_output)
         elif cve_result >= cvss_score:
             if epss_result >= epss_score:
                 print_and_write(working_file, cve_id, 'Priority 1', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, summary, colored_output)
+                            version, 'FALSE', verbose_print, vendor, product, "HIGH", colored_output)
             else:
                 print_and_write(working_file, cve_id, 'Priority 2', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, summary, colored_output)
+                            version, 'FALSE', verbose_print, vendor, product, "MEDIUM", colored_output)
         else:
             if epss_result >= epss_score:
                 print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, summary, colored_output)
+                            version, 'FALSE', verbose_print, vendor, product, "MEDIUM", colored_output)
             else:
                 print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
-                            version, 'FALSE', verbose_print, summary, colored_output)
+                            version, 'FALSE', verbose_print, vendor, product, "LOW", colored_output)
     except (TypeError, AttributeError):
         pass
 

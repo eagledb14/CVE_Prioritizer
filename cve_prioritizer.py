@@ -6,10 +6,8 @@ __version__ = "1.5.1"
 __maintainer__ = "Mario Rojas"
 __status__ = "Production"
 
-import os
 import re
 import threading
-import time
 from threading import Semaphore
 
 import click
@@ -26,7 +24,6 @@ Throttle_msg = ''
 
 # argparse setup
 @click.command()
-@click.option('-a', '--api', type=str, help='Your API Key')
 @click.option('-c', '--cve', type=str, help='Unique CVE-ID')
 @click.option('-e', '--epss', type=float, default=0.2, help='EPSS threshold (Default 0.2)')
 @click.option('-f', '--file', type=click.File('r'), help='TXT file with CVEs (One per Line)')
@@ -36,10 +33,9 @@ Throttle_msg = ''
 @click.option('-v', '--verbose', is_flag=True, help='Verbose mode')
 @click.option('-l', '--list', help='Comma separated list of CVEs')
 @click.option('-nc', '--no-color', is_flag=True, help='Disable Colored Output')
-def main(api, cve, epss, file, cvss, output, threads, verbose, list, no_color):
+def main(cve, epss, file, cvss, output, threads, verbose, list, no_color):
     # Global Arguments
     color_enabled = not no_color
-    throttle_msg = ''
 
     # standard args
     header = SIMPLE_HEADER
@@ -65,7 +61,7 @@ def main(api, cve, epss, file, cvss, output, threads, verbose, list, no_color):
 
     if output:
         # output.write("cve_id,priority,epss,cvss,cvss_version,cvss_severity,cisa_kev,cpe,vendor,product,vector" + "\n")
-        output.write("cve_id,priority, epss, cvss, version, cisa_kev, description" + "\n")
+        output.write("cve_id,priority, epss, cvss, version, severity, cisa_kev, vendor, product" + "\n")
 
     for cve in cve_list:
         if not re.match(r'(CVE|cve-\d{4}-\d+$)', cve):
@@ -73,7 +69,7 @@ def main(api, cve, epss, file, cvss, output, threads, verbose, list, no_color):
         else:
             sem.acquire()
             t = threading.Thread(target=worker, args=(cve.upper().strip(), cvss_threshold, epss_threshold, verbose,
-                                                      sem, color_enabled, output, api))
+                                                      sem, color_enabled, output))
             threads.append(t)
             t.start()
 
