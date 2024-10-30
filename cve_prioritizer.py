@@ -60,8 +60,8 @@ def main(cve, epss, file, cvss, output, threads, verbose, list, no_color):
         click.echo(LOGO + header)
 
     if output:
-        # output.write("cve_id,priority,epss,cvss,cvss_version,cvss_severity,cisa_kev,cpe,vendor,product,vector" + "\n")
         output.write("cve_id,priority, epss, cvss, version, severity, cisa_kev, vendor, product" + "\n")
+        pass
 
     for cve in cve_list:
         if not re.match(r'(CVE|cve-\d{4}-\d+$)', cve):

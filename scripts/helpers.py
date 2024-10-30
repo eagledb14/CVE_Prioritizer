@@ -81,10 +81,17 @@ def shodan_check(cve_id):
 
     product = ""
     vendor = ""
-    if 'cpes' in data and len(data['cpes']) > 0:
-        cpe = data['cpes'][0].split(":")
+
+    index = 0
+    if 'cpes' in data:
+        cpe = data['cpes'][index].split(":")
+        while len(cpe) < 4:
+            index += 1
+            cpe = data['cpes'][index].split(":")
+
         vendor = cpe[3]
         product = cpe[4]
+
     
 
     return (cvss, epss, kev, version, vendor, product)
