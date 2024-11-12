@@ -3,7 +3,7 @@
 ########
 # Usage
 #
-# ./run.sh
+# ./osint.sh
 # paste host into the "host" variable
 # replace "google.com"
 #
@@ -17,6 +17,8 @@ touch ips.txt
 shodan search --fields ip_str --limit 100 $host >> ips.txt 
 
 readarray -t ips < ips.txt
+tr -d '\t' < ips.txt > temp.txt && mv temp.txt ips.txt
+sed -i '/^$/d' ips.txt
 
 touch cves.txt
 
