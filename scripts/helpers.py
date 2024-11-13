@@ -124,7 +124,7 @@ def worker(cve_id, cvss_score, epss_score, verbose_print, sem, colored_output, s
                 print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
                             version, 'FALSE', verbose_print, vendor, product, "MEDIUM", colored_output)
             else:
-                print_and_write(working_file, cve_id, 'Priority 3', epss_result, cve_result,
+                print_and_write(working_file, cve_id, 'Priority 4', epss_result, cve_result,
                             version, 'FALSE', verbose_print, vendor, product, "LOW", colored_output)
     except (TypeError, AttributeError):
         pass
